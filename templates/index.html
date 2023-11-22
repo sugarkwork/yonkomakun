@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>4コマ生成君</title>
+    <style>
+        /* 画面の中央に要素を配置するためのスタイル */
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* テキストボックスとボタンのスタイル */
+        .textbox,
+        .button {
+            margin: 5px;
+        }
+
+        .textbox {
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/manga/" method="POST">
+        <div class="centered">
+            <input type="text" name="theme" class="textbox">
+            <button type="submit" class="button">生成</button>
+        </div>
+    </form>
+</body>
+
+</html>

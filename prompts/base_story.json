@@ -1,0 +1,79 @@
+[{
+    "type": "function",
+    "function": {
+        "name": "create_four_panel_comic",
+        "description": "Create a four-panel comic based on a specified theme, with punchlines and detailed content for each panel.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "theme": {
+                    "type": "string",
+                    "description": "The central theme of the comic."
+                },
+                "punchlines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Three lateral-thinking punchlines related to the theme."
+                },
+                "selected_punchline": {
+                    "type": "string",
+                    "description": "The chosen punchline that appeals to men and women in their 20s."
+                },
+                "panels": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "setting": {
+                                "type": "string",
+                                "description": "The setting of the panel."
+                            },
+                            "actions": {
+                                "type": "string",
+                                "description": "The actions taking place in the panel."
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "The state of characters or environment in the panel."
+                            },
+                            "dialogue": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "character": {
+                                            "type": "string",
+                                            "description": "The name of the character speaking."
+                                        },
+                                        "speech": {
+                                            "type": "string",
+                                            "description": "The dialogue of the character. Output in Japanese."
+                                        },
+                                        "inner_thoughts": {
+                                            "type": "string",
+                                            "description": "The inner thoughts of the character, if any. Output in Japanese."
+                                        }
+                                    }
+                                },
+                                "description": "The dialogues and inner thoughts of characters in the panel."
+                            },
+                            "drawing_prompt": {
+                                "type": "string",
+                                "description": "Detailed description for AI to draw the panel, avoiding abstract descriptions and including specific details like materials, colors, and attire names. Japansese Anime Style."
+                            }
+                        },
+                        "required": ["setting", "actions", "state", "dialogue", "drawing_prompt"]
+                    },
+                    "description": "The content for each of the four panels."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title of the comic in Japanese."
+                }
+            },
+            "required": ["theme", "punchlines", "selected_punchline", "panels", "title"]
+        }
+    }
+}]

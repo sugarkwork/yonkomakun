@@ -1,0 +1,7 @@
+Please create a four-panel comic that is lightly humorous. Focus on the content, no explanation is needed.
+
+1. Start by coming up with a theme.
+2. Next, think of three lateral-thinking punchlines for the last panel based on the theme.
+3. Choose one punchline that would likely appeal to men and women in their 20s.
+4. Develop the content for all four panels (setting, actions, state, dialogue, or inner thoughts), keeping in mind the setup for the final punchline. Include both comedic and retort elements. Use inversion in the dialogue as needed.
+5. For character illustrations, I'd like to use DALLE3. Please create prompts describing the characters' visual aspects, like hair color, hairstyle, and accessories, in a Japanese anime style. Ensure all illustrations have a consistent style. Output the character visual prompts as text. Avoid abstract descriptions (like a trendy dress and casual jeans) and provide specific details (like a light pink dress with grey, distressed jeans), including specific materials, colors, and names of the attire.

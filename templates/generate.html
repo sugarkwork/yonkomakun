@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>画像とボタンの配置</title>
+    <style>
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .image-set {
+            display: flex;
+            flex-direction: row;
+            /* ここを row に変更 */
+            align-items: center;
+            margin: 10px;
+        }
+
+        img {
+            max-width: 60%;
+            height: auto;
+            margin-right: 10px;
+            /* 画像とボタンの間に余白を追加 */
+        }
+
+        .button {
+            display: block;
+            /* ボタンをブロック要素として扱う */
+            margin: 5px 5px;
+            /* 上下の余白を設定 */
+        }
+
+        #title {
+            text-align: center; /* タイトルを中央に配置 */
+            font-size: 24px; /* フォントサイズを大きく */
+            font-weight: bold; /* フォントを太字に */
+            color: #333; /* フォントカラーを濃い色に */
+            margin-top: 20px; /* 上部に余白を追加 */
+            margin-bottom: 20px; /* 下部に余白を追加 */
+            padding: 10px; /* 内側の余白（パディング）を追加 */
+            background-color: #f8f8f8; /* 背景色を設定 */
+            border-radius: 5px; /* 角を丸くする */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 影を追加 */
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="title">生成中……</div>
+
+    <div class="image-container">
+        <!-- 画像とボタンのセット1 -->
+        <div class="image-set">
+            <img id="img0" src="/generating.png" alt="画像1">
+            <!--button class="button">再生成</button>
+            <button class="button">再配置</button-->
+        </div>
+
+        <!-- 画像とボタンのセット2 -->
+        <div class="image-set">
+            <img id="img1" src="/generating.png" alt="画像2">
+            <!--button class="button">再生成</button>
+            <button class="button">再配置</button-->
+        </div>
+
+        <!-- 画像とボタンのセット3 -->
+        <div class="image-set">
+            <img id="img2" src="/generating.png" alt="画像3">
+            <!--button class="button">再生成</button>
+            <button class="button">再配置</button-->
+        </div>
+
+        <!-- 画像とボタンのセット4 -->
+        <div class="image-set">
+            <img id="img3" src="/generating.png" alt="画像4">
+            <!--button class="button">再生成</button>
+            <button class="button">再配置</button-->
+        </div>
+    </div>
+
+    <hr>
+
+    <div id="server-text"></div>
+
+    <script>
+        $(document).ready(function () {
+            var jsonData = '';
+
+            function fetchText() {
+                $.post('/story/', { theme: '{{theme}}' }).done(function (data) {
+                    jsonData = JSON.stringify(data);
+                    $('#server-text').text(jsonData);
+                    $('#title').text(data.title);
+
+                    fetchImg(jsonData, 0);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Error: ", textStatus, errorThrown);
+                });
+            }
+
+            function fetchImg(json_data, panel_number) {
+                var raw_data = { story: json_data, number: panel_number };
+                $.post({
+                    url: '/panel/',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify(raw_data)
+                }).done(function (data) {
+                    $("#img" + panel_number).attr("src", data.path);
+                    if (panel_number < 3){
+                        fetchImg(jsonData, panel_number + 1);
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Error: ", textStatus, errorThrown);
+                });
+            }
+
+            fetchText();
+        });
+    </script>
+
+</body>
+
+</html>

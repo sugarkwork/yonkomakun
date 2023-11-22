@@ -1,0 +1,9 @@
+ultralytics
+python-dotenv
+openai
+fastapi
+uvicorn[standard]
+pillow
+jinja2
+mecab-python3
+unidic
