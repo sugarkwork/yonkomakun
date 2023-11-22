@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 yolov8n.pt
 yolov8x.pt
+image_cache/
