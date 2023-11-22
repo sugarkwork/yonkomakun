@@ -7,11 +7,13 @@
 
 .env ファイルを作成します。
 .env ファイルの中に OpenAI の API キーを記載します。
- API_KEY="sk-dummykeydummykeydummykeydummykeydummykey"
+
+    API_KEY="sk-dummykeydummykeydummykeydummykeydummykey"
 
 
 uvicorn コマンドを実行します。ポート番号は適宜好みの番号にしてください。
- uvicorn main:app --reload --port 7861
+
+    uvicorn main:app --reload --port 7861
 
 
 とりあえず生成ボタンを押すと、生成される……はず。
