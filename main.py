@@ -8,7 +8,7 @@ import random
 from dotenv import load_dotenv
 from ultralytics import YOLO
 from openai import OpenAI
-from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI, Request, Response, status, Form
 from fastapi.templating import Jinja2Templates
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 import requests
@@ -54,7 +54,7 @@ client = OpenAI(api_key=os.getenv('API_KEY'))
 
 
 @app.post("/story/")
-def base_story(theme="") -> dict:
+def base_story(theme: str = Form(...)) -> dict:
     cache = load_memory(f'cache_theme_{theme}', {})
     if cache:
         return cache
@@ -86,7 +86,8 @@ def base_story(theme="") -> dict:
 
 
 @app.post("/manga/")
-def create_manga(theme="", request: Request=None):
+def create_manga(theme: str = Form(...), request: Request = None):
+    print(theme, request)
     return templates.TemplateResponse("generate.html", {
         "theme": theme,
         "request": request
@@ -250,7 +251,7 @@ animals_and_people = ["person", "bird", "cat", "dog", "horse", "sheep", "cow", "
 
 
 font_path = 'fonts/GenEiAntique/GenEiAntiqueNv5-M.ttf'
-font_size = 30
+font_size = 40
 
 
 @app.post("/panel/")
