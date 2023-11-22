@@ -32,7 +32,7 @@ def save_memory(key, val):
             memory = pickle.load(f)
     else:
         memory = {}
-    memory[key] = val
+    memory[hashlib.sha512(key.encode()).hexdigest()] = val
     with open(pickle_file, 'wb') as f:
         pickle.dump(memory, f)
 
@@ -44,7 +44,7 @@ def load_memory(key, defval=None):
             memory = pickle.load(f)
     else:
         memory = {}
-    return memory.get(key, defval)
+    return memory.get(hashlib.sha512(key.encode()).hexdigest(), defval)
 
 
 model = YOLO('yolov8x.pt')
@@ -55,7 +55,9 @@ client = OpenAI(api_key=os.getenv('API_KEY'))
 
 @app.post("/story/")
 def base_story(theme: str = Form(...)) -> dict:
-    cache = load_memory(f'cache_theme_{theme}', {})
+    cache_key = f'cache_theme_{theme}'
+    cache = load_memory(cache_key, {})
+
     if cache:
         return cache
 
@@ -66,7 +68,7 @@ def base_story(theme: str = Form(...)) -> dict:
         base_prompt = file.read()
 
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-1106-preview, gpt-4-0613
         messages=[
             {"role": "user", "content": f"Please create a four-panel comic that is lightly humorous.{theme}"},
         ],
@@ -80,7 +82,7 @@ def base_story(theme: str = Form(...)) -> dict:
     tool_call = tool_calls[0]
     data = json.loads(tool_call.function.arguments)
 
-    save_memory(f'cache_theme_{theme}', data)
+    save_memory(cache_key, data)
 
     return data
 
@@ -357,20 +359,28 @@ def generate_image(text):
         os.mkdir('image_cache')
 
     if not os.path.exists(cache_name):
-        response = client.images.generate(
-            model="dall-e-3",
-            prompt=text,
-            size="1024x1024",
-            quality="standard",
-            n=1,
-        )
-        image_url = response.data[0].url
+        for _ in range(3):
+            try:
+                response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=f'{text}\n\nIgnore all the styles specified above (photorealistic, comic, illustration style) and just change the style to ``High-quality anime style'' without changing what you draw. The anime style should be realistic, stylish, detailed in design, and colorful.To avoid violating the content policy, please be careful not to expose unnecessary skin or create sexual images.',
+                    size="1024x1024",
+                    quality="standard",
+                    n=1,
+                )
+                image_url = response.data[0].url
 
-        response = requests.get(image_url)
-        response.raise_for_status()
+                response = requests.get(image_url)
+                response.raise_for_status()
 
-        with open(cache_name, "wb") as f:
-            f.write(response.content)
+                with open(cache_name, "wb") as f:
+                    f.write(response.content)
+
+                break
+            except Exception as e:
+                print(e)
+        else:
+            Image.open('images/notfound.png').save(cache_name)
 
     image = Image.open(cache_name)
     return image

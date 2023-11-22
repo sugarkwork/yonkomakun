@@ -61,7 +61,7 @@
                             },
                             "drawing_prompt": {
                                 "type": "string",
-                                "description": "Detailed description for AI to draw the panel, avoiding abstract descriptions and including specific details like materials, colors, and attire names. Be sure to specify a Japanese anime style for the drawing style."
+                                "description": "Please create prompts describing the characters' visual aspects, like hair color, hairstyle, and accessories, in a Japanese anime style. Ensure all illustrations have a consistent style. Output the character visual prompts as text. Avoid abstract descriptions (like a trendy dress and casual jeans) and provide specific details (like a light pink dress with grey, distressed jeans), including specific materials, colors, and names of the attire.Be consistent, especially with your hairstyle, hair color, and accessories."
                             }
                         },
                         "required": ["setting", "actions", "state", "dialogue", "drawing_prompt"]
