@@ -67,7 +67,7 @@
                         },
                         "required": ["setting", "actions", "state", "dialogue", "drawing_prompt"]
                     },
-                    "description": "４コマ漫画のコマのそれぞれの内容を説明します"
+                    "description": "４コマ漫画のコマのそれぞれの内容を説明します。４つ必要です。"
                 },
                 "title": {
                     "type": "string",

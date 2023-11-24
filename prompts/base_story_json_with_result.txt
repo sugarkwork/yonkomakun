@@ -1,0 +1,87 @@
+Execute this format of JSON and output the resulting JSON. Please follow the description for the output content.
+
+[{
+    "type": "function",
+    "function": {
+        "name": "create_four_panel_comic",
+        "description": "Create a four-panel comic based on a specified theme, with punchlines and detailed content for each panel.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "theme": {
+                    "type": "string",
+                    "description": "The central theme of the comic."
+                },
+                "punchlines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Three lateral-thinking punchlines related to the theme."
+                },
+                "selected_punchline": {
+                    "type": "string",
+                    "description": "The chosen punchline that appeals to men and women in their 20s."
+                },
+                "panels": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "setting": {
+                                "type": "string",
+                                "description": "The setting of the panel."
+                            },
+                            "actions": {
+                                "type": "string",
+                                "description": "The actions taking place in the panel."
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "The state of characters or environment in the panel."
+                            },
+                            "dialogue": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "character": {
+                                            "type": "string",
+                                            "description": "The name of the character speaking."
+                                        },
+                                        "speech": {
+                                            "type": "string",
+                                            "description": "The dialogue of the character. Output in Japanese."
+                                        },
+                                        "inner_thoughts": {
+                                            "type": "string",
+                                            "description": "The inner thoughts of the character, if any. Output in Japanese."
+                                        }
+                                    }
+                                },
+                                "description": "The dialogues and inner thoughts of characters in the panel."
+                            },
+                            "drawing_prompt": {
+                                "type": "string",
+                                "description": "Please create prompts describing the characters' visual aspects, like hair color, hairstyle, and accessories. Avoid abstract descriptions (like a trendy dress and casual jeans) and provide specific details (like a light pink dress with grey, distressed jeans), including specific materials, colors, and names of the attire. Be consistent, especially with your hairstyle, hair color, and accessories. Never specify a drawing style (illustration, photo, photorealism, comic, etc.). "
+                            }
+                        },
+                        "required": ["setting", "actions", "state", "dialogue", "drawing_prompt"]
+                    },
+                    "description": "The content for each of the four panels."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title of the comic in Japanese."
+                }
+            },
+            "required": ["theme", "punchlines", "selected_punchline", "panels", "title"]
+        }
+    }
+}]
+
+Example output (Theme: Cat Holiday):
+
+{"theme":"Cat's Holiday","punchlines":["Cat is relaxing","Cat who doesn't want to be touched by his owner is looking for a place to hide","Cat is playing athletic"] ,"selected_punchline":"A cat that doesn't want to be touched by its owner is looking for a place to hide","panels":[{"setting":"Living room of a house with a cat","actions":"A cat is relaxing ","state":"The cat looks relaxed","dialogue":[{"character":"cat","speech":"ああ、これぞネコの休日…"} ],"drawing_prompt":"A black-haired cat is relaxing in a warm room, sitting on a dark purple cushion."},{"setting":"Living room of a house with a cat","actions":"A cat with black fur is relaxing in a warm room." The owner comes in and tries to pick up the cat.","state":"Cat tries to hide outside the room.","dialogue":[{"character":"owner","speech ":"ネコちゃん、お風呂の時間よ！"}],"drawing_prompt":"A black-haired cat is peeking under the bed. The owner has long black hair, blue eyes, and is wearing a brown dress. "},{"setting":"Living room of a house with a cat","actions":"The cat is looking for a place to hide","state":"The cat is trying to get into a small hole or downstairs space." ,"dialogue":[{"character":"cat","speech":"うーん。ここは……"}],"drawing_prompt":"A black-furred cat is sleeping in an unfinished paper bag. "},{"setting":"The living room of the house with the cat","actions":"The cat is eventually found by its owner, unconscious.","state":"Angrily The owner is stroking the cat's face.","dialogue":[{"character":"owner","speech":"かくれんぼなんてしちゃだめよ？"},{"character":" Cat","speech":"しょうがないニャァ"}],"drawing_prompt":"A black cat is held in his hand and is clearly unconscious.He has long black hair, blue eyes, and is wearing a brown dress. . "}],"title":"見つけられた……ネコ"}
+
+Follow this example to output only JSON.
