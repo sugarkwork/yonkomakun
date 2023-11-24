@@ -1,25 +1,26 @@
-[{
+[
+{
     "type": "function",
     "function": {
         "name": "create_four_panel_comic",
-        "description": "Create a four-panel comic based on a specified theme, with punchlines and detailed content for each panel.",
+        "description": "指定されたテーマに基づいて４コマ漫画を作成し、各パネルのポイントと詳細な内容を提供します。",
         "parameters": {
             "type": "object",
             "properties": {
                 "theme": {
                     "type": "string",
-                    "description": "The central theme of the comic."
+                    "description": "４コマ漫画のの中心テーマ"
                 },
                 "punchlines": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     },
-                    "description": "Three lateral-thinking punchlines related to the theme."
+                    "description": "テーマに基づいた４コマ漫画のオチを、水平思考で考えます"
                 },
                 "selected_punchline": {
                     "type": "string",
-                    "description": "The chosen punchline that appeals to men and women in their 20s."
+                    "description": "２０代の男女に最もウケそうなオチを１つ選びます"
                 },
                 "panels": {
                     "type": "array",
@@ -28,15 +29,15 @@
                         "properties": {
                             "setting": {
                                 "type": "string",
-                                "description": "The setting of the panel."
+                                "description": "シーンの設定"
                             },
                             "actions": {
                                 "type": "string",
-                                "description": "The actions taking place in the panel."
+                                "description": "そのシーンで何が起きているかを説明"
                             },
                             "state": {
                                 "type": "string",
-                                "description": "The state of characters or environment in the panel."
+                                "description": "そのシーンの中でのキャラクターの状態などを表す"
                             },
                             "dialogue": {
                                 "type": "array",
@@ -45,35 +46,36 @@
                                     "properties": {
                                         "character": {
                                             "type": "string",
-                                            "description": "The name of the character speaking."
+                                            "description": "話しているキャラクターの名前。"
                                         },
                                         "speech": {
                                             "type": "string",
-                                            "description": "The dialogue of the character. Output in Japanese."
+                                            "description": "もしあれば、キャラクターのセリフ。日本語で出力。"
                                         },
                                         "inner_thoughts": {
                                             "type": "string",
-                                            "description": "The inner thoughts of the character, if any. Output in Japanese."
+                                            "description": "もしあれば、キャラクターの心の声。日本語で出力。"
                                         }
                                     }
                                 },
-                                "description": "The dialogues and inner thoughts of characters in the panel."
+                                "description": "コマの中のシーンの環境やキャラクターの言動や心の声を考えます"
                             },
                             "drawing_prompt": {
                                 "type": "string",
-                                "description": "Please create prompts describing the characters' visual aspects, like hair color, hairstyle, and accessories. Avoid abstract descriptions (like a trendy dress and casual jeans) and provide specific details (like a light pink dress with grey, distressed jeans), including specific materials, colors, and names of the attire. Be consistent, especially with your hairstyle, hair color, and accessories. Never specify a drawing style (illustration, photo, photorealism, comic, etc.). "
+                                "description": "キャラクターの視覚的な特徴を説明するプロンプトを作成してください。例えば、髪の色、髪型、アクセサリーなど。抽象的な表現（流行のドレスやカジュアルなジーンズなど）を避け、具体的な詳細（ライトピンクのドレスやグレーのダメージジーンズなど）を含めてください。特に髪型、髪の色、目の色、アクセサリーについては一貫性を保ってください。描画スタイル（イラスト、写真、フォトリアリズム、コミックなど）は指定しないでください。"
                             }
                         },
                         "required": ["setting", "actions", "state", "dialogue", "drawing_prompt"]
                     },
-                    "description": "The content for each of the four panels."
+                    "description": "４コマ漫画のコマのそれぞれの内容を説明します"
                 },
                 "title": {
                     "type": "string",
-                    "description": "The title of the comic in Japanese."
+                    "description": "この４コマ漫画のタイトルを日本語で考えます"
                 }
             },
             "required": ["theme", "punchlines", "selected_punchline", "panels", "title"]
         }
     }
-}]
+}
+]

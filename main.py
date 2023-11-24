@@ -47,7 +47,25 @@ def load_memory(key, defval=None):
     return memory.get(hashlib.sha512(key.encode()).hexdigest(), defval)
 
 
-model = YOLO('yolov8x.pt')
+models = {
+    'person_yolov8m-seg.pt': "https://huggingface.co/Bingsu/adetailer/resolve/main/person_yolov8m-seg.pt?download=true",
+    'face_yolov8m.pt': "https://huggingface.co/Bingsu/adetailer/resolve/main/face_yolov8m.pt?download=true",
+}
+
+
+target_model = 'face_yolov8m.pt'
+
+
+if not os.path.exists(target_model):
+    url = models[target_model]
+    print(f"Downloading {url}...")
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(target_model, 'wb') as file:
+        file.write(response.content)
+
+
+model = YOLO(target_model)
 
 
 client = OpenAI(api_key=os.getenv('API_KEY'))
@@ -64,11 +82,11 @@ def base_story(theme: str = Form(...)) -> dict:
     if theme:
         theme = f' The theme is "{theme}".'
     
-    with open('prompts/base_story.json', 'r') as file:
+    with open('prompts/base_story_jp.json', 'r', encoding='utf-8') as file:
         base_prompt = file.read()
 
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-1106-preview, gpt-4-0613
+        model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-0613, gpt-4-1106-preview, gpt-3.5-turbo-1106
         messages=[
             {"role": "user", "content": f"Please create a four-panel comic that is lightly humorous.{theme}"},
         ],
@@ -148,7 +166,7 @@ class StoryPanelData(BaseModel):
 def wakati(text: str):
     # MeCabで分かち書き
     tagger = MeCab.Tagger('-Owakati')
-    return tagger.parse(text.replace('。','\n').replace('、','\n')).split()
+    return tagger.parse(text.replace('。','\r\n').replace('、','\r\n').replace('，','\r\n').replace(',','\r\n')).split()
 
 
 def draw_vertical_text(text, font_path, image_size, font_size, rect):
@@ -156,6 +174,8 @@ def draw_vertical_text(text, font_path, image_size, font_size, rect):
     image = Image.new('RGBA', image_size, color=(255,255,255,0))
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font_path, font_size)
+    
+    rotate_symbols = ['「', '」', 'ー', '、', '。', '【', '】', '…']
 
     height_len = (rect[3] - rect[1]) / font_size  # 縦書きの文字数
     line_len = 0
@@ -170,7 +190,16 @@ def draw_vertical_text(text, font_path, image_size, font_size, rect):
             line_len = 0
 
         for char in word:
-            draw.text((x, y), char, font=font, fill=(0,0,0))
+            if char in rotate_symbols:
+                # 回転する文字の処理
+                char_image = Image.new('RGBA', (font_size, font_size), (255, 255, 255, 0))
+                char_draw = ImageDraw.Draw(char_image)
+                char_draw.text((0, 0), char, font=font, fill=(0, 0, 0))
+                char_image = char_image.rotate(90, expand=1)
+                image.paste(char_image, (x, y), char_image)
+            else:
+                # 通常の文字の処理
+                draw.text((x, y), char, font=font, fill=(0, 0, 0))
             y += font_size
             line_len += 1
 
@@ -226,11 +255,11 @@ def is_fully_contained(rect1, rect2):
 def is_overlapping(rect1, rect2):
     x1, y1, x2, y2 = rect1
     x3, y3, x4, y4 = rect2
-    if x2 < x3 or x4 < x1:
-        return False
-    if y2 < y3 or y4 < y1:
-        return False
-    return True
+    horizontal_overlap = not (x2 < x3 or x4 < x1)
+    vertical_overlap = not (y2 < y3 or y4 < y1)
+
+    return horizontal_overlap and vertical_overlap
+
 
 
 def overlapping_area(rect1, rect2):
@@ -249,7 +278,7 @@ def overlapping_area(rect1, rect2):
     return overlapping_width * overlapping_height
 
 
-animals_and_people = ["person", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "teddy bear"]
+animals_and_people = ["person", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "teddy bear", "face"]
 
 
 font_path = 'fonts/GenEiAntique/GenEiAntiqueNv5-M.ttf'
@@ -279,11 +308,11 @@ def generate_panel(story_panel: StoryPanelData) -> dict:
     print("avoid_rects = ", avoid_rects)
 
     def draw_message(text, round=True):
-        image = generate_fukidasi(text, round=round, height=random.randint(180, 250))
+        image = generate_fukidasi(text, round=round, height=random.randint(180, 300))
         image.save(get_image_path(panel.get_image_prompt(), "_selif"))
         alpha_channel = image.getchannel('A')
 
-        margin = 50
+        margin = 80
 
         min_overlap_size = sys.maxsize
         min_overlap_rect = None
@@ -363,7 +392,20 @@ def generate_image(text):
             try:
                 response = client.images.generate(
                     model="dall-e-3",
-                    prompt=f'{text}\n\nIgnore all the styles specified above (photorealistic, comic, illustration style) and just change the style to ``High-quality anime style'' without changing what you draw. The anime style should be realistic, stylish, detailed in design, and colorful.To avoid violating the content policy, please be careful not to expose unnecessary skin or create sexual images.',
+                    prompt=f"""{text}
+
+Visual Style: Adopt a bright and colorful style characteristic of Japanese bishoujo games. Vivid colors and meticulous attention to detail are crucial.
+Character Design:
+Appearance: Characters should be cute and elegant. Focus on fine facial expression details to enrich emotional expression.
+Clothing: Reflect contemporary, stylish Japanese fashion. Choose casual yet fashionable attire that gives a chic impression.
+Environmental Setting:
+Background: The environment is depicted realistically and in detail, and items are placed to give a sense of life.
+Composition: Emphasize the balance between characters and background, creating visually appealing compositions.
+Color: Use bright, high-saturation colors to create a cheerful and lively atmosphere. Consider harmony and contrast in colors to enhance visual appeal.
+Lighting and Shadows: Use proper lighting to naturally portray shadows on characters and the environment. Lighting is a crucial element in setting the scene’s mood.
+Details and Accessories: Pay attention to the details of accessories and small items. These are important for enhancing the character's personality and the scene's realism.
+Content Filter: Be mindful to avoid triggering content filters. Modify overly sexy expressions or direct sexual keywords into softer expressions to prevent content filter issues.
+""",
                     size="1024x1024",
                     quality="standard",
                     n=1,
