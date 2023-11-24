@@ -418,26 +418,45 @@ def generate_image(text):
 
     if not os.path.exists('image_cache'):
         os.mkdir('image_cache')
+    
+    
 
     if not os.path.exists(cache_name):
+
+        with open(f'prompts/dalle3_prompt_gen.txt', 'r', encoding='utf-8') as prompt_file:
+            dalle_prompt = prompt_file.read()
+        with open(f'prompts/style_guidelines.txt', 'r', encoding='utf-8') as prompt_file:
+            style_guideline = prompt_file.read()
+        
+        theme = f"Theme:\n{text}\n\n{style_guideline}"
+
         for _ in range(3):
             try:
+                cache_key = f'image_prompt_cache_{theme}'
+
+                response = load_memory(cache_key, {})
+                if not response:
+                    
+                    response = client.chat.completions.create(
+                        model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-0613, gpt-4-1106-preview, gpt-3.5-turbo-1106
+                        messages=[
+                            {"role": "system", "content": dalle_prompt},
+                            {"role": "user", "content": theme},
+                        ],
+                    )
+                    save_memory(cache_key, response)
+                
+                message = response.choices[0].message
+                dalle3_prompt = message.content
+
+                print("--text---------------------------------")
+                print(theme)
+                print("---prompt--------------------------------")
+                print(dalle3_prompt)
+
                 response = client.images.generate(
                     model="dall-e-3",
-                    prompt=f"""{text}
-
-Visual Style: Adopt a bright and colorful style characteristic of Japanese bishoujo games. Vivid colors and meticulous attention to detail are crucial.
-Character Design:
-Appearance: Characters should be cute and elegant. Focus on fine facial expression details to enrich emotional expression.
-Clothing: Reflect contemporary, stylish Japanese fashion. Choose casual yet fashionable attire that gives a chic impression.
-Environmental Setting:
-Background: The environment is depicted realistically and in detail, and items are placed to give a sense of life.
-Composition: Emphasize the balance between characters and background, creating visually appealing compositions.
-Color: Use bright, high-saturation colors to create a cheerful and lively atmosphere. Consider harmony and contrast in colors to enhance visual appeal.
-Lighting and Shadows: Use proper lighting to naturally portray shadows on characters and the environment. Lighting is a crucial element in setting the scene’s mood.
-Details and Accessories: Pay attention to the details of accessories and small items. These are important for enhancing the character's personality and the scene's realism.
-Content Filter: Be mindful to avoid triggering content filters. Modify overly sexy expressions or direct sexual keywords into softer expressions to prevent content filter issues.
-""",
+                    prompt=dalle3_prompt,
                     size="1024x1024",
                     quality="standard",
                     n=1,
