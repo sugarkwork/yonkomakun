@@ -81,24 +81,56 @@ def base_story(theme: str = Form(...)) -> dict:
 
     if theme:
         theme = f' The theme is "{theme}".'
-    
-    with open('prompts/base_story_jp.json', 'r', encoding='utf-8') as file:
-        base_prompt = file.read()
 
-    response = client.chat.completions.create(
-        model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-0613, gpt-4-1106-preview, gpt-3.5-turbo-1106
-        messages=[
-            {"role": "user", "content": f"Please create a four-panel comic that is lightly humorous.{theme}"},
-        ],
-        tools=eval(base_prompt),
-        tool_choice="auto"
-    )
-    
-    message = response.choices[0].message
-    tool_calls = message.tool_calls
 
-    tool_call = tool_calls[0]
-    data = json.loads(tool_call.function.arguments)
+    def function_calling():
+        with open('prompts/base_story.json', 'r', encoding='utf-8') as file:
+            base_prompt = file.read()
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106", # gpt-4-0314, gpt-4-0613, gpt-4-1106-preview, gpt-3.5-turbo-1106
+            messages=[
+                {"role": "user", "content": f"Please create a four-panel comic that is lightly humorous.{theme}"},
+            ],
+            tools=eval(base_prompt),
+            tool_choice="auto"
+        )
+        
+        message = response.choices[0].message
+        tool_calls = message.tool_calls
+
+        tool_call = tool_calls[0]
+        data = json.loads(tool_call.function.arguments)
+        return data
+
+
+    def chat_completions():
+        with open('prompts/base_story_json_with_result.txt', 'r', encoding='utf-8') as file:
+            base_prompt = file.read()
+
+        response = None
+
+        cache_key2 = f'test_cache_theme_temp_{theme}'
+        response = load_memory(cache_key2, {})
+        if not response:
+            response = client.chat.completions.create(
+                model="gpt-4-1106-preview", # gpt-4-0314, gpt-4-0613, gpt-4-1106-preview, gpt-3.5-turbo-1106
+                response_format={ "type": "json_object" },
+                messages=[
+                    {"role": "system", "content": "You are an agent that produces JSON output according to the examples you input."},
+                    {"role": "user", "content": f"{base_prompt}\n{theme}"},
+                ],
+            )
+            save_memory(cache_key2, response)
+        
+        message = response.choices[0].message
+        content = message.content
+
+        data = json.loads(content)
+        return data
+
+
+    data = chat_completions()
 
     save_memory(cache_key, data)
 
@@ -166,7 +198,7 @@ class StoryPanelData(BaseModel):
 def wakati(text: str):
     # MeCabで分かち書き
     tagger = MeCab.Tagger('-Owakati')
-    return tagger.parse(text.replace('。','\r\n').replace('、','\r\n').replace('，','\r\n').replace(',','\r\n')).split()
+    return tagger.parse(text.replace('。','\r\n').replace('、','\r\n').replace('，','\r\n').replace(',','\r\n').replace('...', '…')).split()
 
 
 def draw_vertical_text(text, font_path, image_size, font_size, rect):
